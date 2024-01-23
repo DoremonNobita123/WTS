@@ -1,0 +1,154 @@
+A1
+<?php
+session_start();
+
+// Function to set or update the visit count in session and cookie
+function setVisitCount() {
+    if (!isset($_SESSION['visit_count'])) {
+        $_SESSION['visit_count'] = 1;
+        setcookie('visit_count', 1, time() + 3600 * 24); // Cookie expires in 24 hours
+    } else {
+        $_SESSION['visit_count']++;
+        setcookie('visit_count', $_SESSION['visit_count'], time() + 3600 * 24);
+    }
+}
+
+// Check if the cookie is set
+if (isset($_COOKIE['visit_count'])) {
+    $_SESSION['visit_count'] = $_COOKIE['visit_count'];
+} else {
+    setVisitCount();
+}
+
+// Display the visit count
+echo "Number of visits: {$_SESSION['visit_count']}";
+
+// Update and display the new visit count
+setVisitCount();
+echo "<br>New number of visits: {$_SESSION['visit_count']}";
+?>
+
+A2
+<?php
+// Function to set the preferences in cookies
+function setPreferences($fontStyle, $fontSize, $fontColor, $bgColor) {
+    setcookie('font_style', $fontStyle, time() + 3600 * 24 * 30); // Cookie expires in 30 days
+    setcookie('font_size', $fontSize, time() + 3600 * 24 * 30);
+    setcookie('font_color', $fontColor, time() + 3600 * 24 * 30);
+    setcookie('bg_color', $bgColor, time() + 3600 * 24 * 30);
+}
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve preferences from the form
+    $fontStyle = isset($_POST['font_style']) ? $_POST['font_style'] : 'Arial';
+    $fontSize = isset($_POST['font_size']) ? $_POST['font_size'] : '16px';
+    $fontColor = isset($_POST['font_color']) ? $_POST['font_color'] : '#000000';
+    $bgColor = isset($_POST['bg_color']) ? $_POST['bg_color'] : '#ffffff';
+
+    // Set preferences in cookies
+    setPreferences($fontStyle, $fontSize, $fontColor, $bgColor);
+
+    // Redirect to the next page to display selected settings
+    header('Location: display_preferences.php');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Preferences</title>
+</head>
+<body>
+    <h2>Change Preferences</h2>
+    <form method="post" action="">
+        <label for="font_style">Font Style:</label>
+        <input type="text" name="font_style" id="font_style">
+
+        <label for="font_size">Font Size:</label>
+        <input type="text" name="font_size" id="font_size">
+
+        <label for="font_color">Font Color:</label>
+        <input type="color" name="font_color" id="font_color">
+
+        <label for="bg_color">Background Color:</label>
+        <input type="color" name="bg_color" id="bg_color">
+
+        <button type="submit">Save Preferences</button>
+    </form>
+</body>
+</html>
+<?php
+// Function to get the preferences from cookies
+function getPreferences() {
+    $fontStyle = isset($_COOKIE['font_style']) ? $_COOKIE['font_style'] : 'Arial';
+    $fontSize = isset($_COOKIE['font_size']) ? $_COOKIE['font_size'] : '16px';
+    $fontColor = isset($_COOKIE['font_color']) ? $_COOKIE['font_color'] : '#000000';
+    $bgColor = isset($_COOKIE['bg_color']) ? $_COOKIE['bg_color'] : '#ffffff';
+
+    return compact('fontStyle', 'fontSize', 'fontColor', 'bgColor');
+}
+
+// Get preferences from cookies
+$preferences = getPreferences();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Preferences</title>
+</head>
+<body>
+    <h2>Selected Preferences</h2>
+    <p>Font Style: <?= $preferences['fontStyle'] ?></p>
+    <p>Font Size: <?= $preferences['fontSize'] ?></p>
+    <p>Font Color: <span style="color:<?= $preferences['fontColor'] ?>"><?= $preferences['fontColor'] ?></span></p>
+    <p>Background Color: <span style="background-color:<?= $preferences['bgColor'] ?>"><?= $preferences['bgColor'] ?></span></p>
+
+    <p><a href="apply_preferences.php">Apply Preferences</a></p>
+</body>
+</html>
+<?php
+// Function to get the preferences from cookies
+function getPreferences() {
+    $fontStyle = isset($_COOKIE['font_style']) ? $_COOKIE['font_style'] : 'Arial';
+    $fontSize = isset($_COOKIE['font_size']) ? $_COOKIE['font_size'] : '16px';
+    $fontColor = isset($_COOKIE['font_color']) ? $_COOKIE['font_color'] : '#000000';
+    $bgColor = isset($_COOKIE['bg_color']) ? $_COOKIE['bg_color'] : '#ffffff';
+
+    return compact('fontStyle', 'fontSize', 'fontColor', 'bgColor');
+}
+
+// Get preferences from cookies
+$preferences = getPreferences();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Preferences</title>
+    <style>
+        body {
+            font-family: <?= $preferences['fontStyle'] ?>;
+            font-size: <?= $preferences['fontSize'] ?>;
+            color: <?= $preferences['fontColor'] ?>;
+            background-color: <?= $preferences['bgColor'] ?>;
+        }
+    </style>
+</head>
+<body>
+    <h2>Applied Preferences</h2>
+    <p>This page reflects the applied preferences:</p>
+    <p>Font Style: <?= $preferences['fontStyle'] ?></p>
+    <p>Font Size: <?= $preferences['fontSize'] ?></p>
+    <p>Font Color: <span style="color:<?= $preferences['fontColor'] ?>"><?= $preferences['fontColor'] ?></span></p>
+    <p>Background Color: <span style="background-color:<?= $preferences['bgColor'] ?>"><?= $preferences['bgColor'] ?></span></p>
+</body>
+</html>
