@@ -1,0 +1,196 @@
+B1
+<?php
+session_start();
+
+// Function to validate username and password
+function validateCredentials($username, $password) {
+    // Replace with your actual username and password validation logic
+    $validUsername = 'user';
+    $validPassword = 'pass';
+
+    return ($username === $validUsername && $password === $validPassword);
+}
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve username and password from the form
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+
+    // Check if the entered credentials are valid
+    if (validateCredentials($username, $password)) {
+        // Set a session variable to indicate successful login
+        $_SESSION['authenticated'] = true;
+
+        // Redirect to the second form with the welcome message
+        header('Location: welcome.php');
+        exit;
+    } else {
+        // Update the number of attempts in the session
+        $_SESSION['login_attempts'] = isset($_SESSION['login_attempts']) ? $_SESSION['login_attempts'] + 1 : 1;
+
+        // Check if the maximum attempts (3) have been reached
+        if ($_SESSION['login_attempts'] >= 3) {
+            echo "Too many login attempts. Please try again later.";
+            exit;
+        }
+
+        // Display an error message
+        echo "Invalid username or password. Attempt {$_SESSION['login_attempts']} of 3.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+</head>
+<body>
+    <h2>Login Form</h2>
+    <form method="post" action="">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+<?php
+session_start();
+
+// Check if the user is authenticated (logged in)
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+    // Display the welcome message
+    echo "Welcome! You have successfully logged in.";
+} else {
+    // Redirect to the login page if not authenticated
+    header('Location: login.php');
+    exit;
+}
+?>
+B2
+<?php
+session_start();
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve Employee details from the form
+    $eno = isset($_POST['eno']) ? $_POST['eno'] : '';
+    $ename = isset($_POST['ename']) ? $_POST['ename'] : '';
+    $address = isset($_POST['address']) ? $_POST['address'] : '';
+
+    // Set Employee details in the session
+    $_SESSION['employee_details'] = compact('eno', 'ename', 'address');
+
+    // Redirect to the second page to enter earning details
+    header('Location: earning_details.php');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Details</title>
+</head>
+<body>
+    <h2>Employee Details</h2>
+    <form method="post" action="">
+        <label for="eno">Employee Number:</label>
+        <input type="text" name="eno" id="eno" required>
+
+        <label for="ename">Employee Name:</label>
+        <input type="text" name="ename" id="ename" required>
+
+        <label for="address">Address:</label>
+        <input type="text" name="address" id="address" required>
+
+        <button type="submit">Next</button>
+    </form>
+</body>
+</html>
+<?php
+session_start();
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve earning details from the form
+    $basic = isset($_POST['basic']) ? $_POST['basic'] : 0;
+    $da = isset($_POST['da']) ? $_POST['da'] : 0;
+    $hra = isset($_POST['hra']) ? $_POST['hra'] : 0;
+
+    // Set earning details in the session
+    $_SESSION['earning_details'] = compact('basic', 'da', 'hra');
+
+    // Redirect to the third page to display complete Employee information
+    header('Location: employee_information.php');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning Details</title>
+</head>
+<body>
+    <h2>Earning Details</h2>
+    <form method="post" action="">
+        <label for="basic">Basic:</label>
+        <input type="text" name="basic" id="basic" required>
+
+        <label for="da">DA:</label>
+        <input type="text" name="da" id="da" required>
+
+        <label for="hra">HRA:</label>
+        <input type="text" name="hra" id="hra" required>
+
+        <button type="submit">Next</button>
+    </form>
+</body>
+</html>
+
+<?php
+session_start();
+
+// Get Employee details and earning details from the session
+$employeeDetails = isset($_SESSION['employee_details']) ? $_SESSION['employee_details'] : [];
+$earningDetails = isset($_SESSION['earning_details']) ? $_SESSION['earning_details'] : [];
+
+// Calculate total earnings
+$totalEarnings = array_sum($earningDetails);
+
+// Clear the session data
+session_unset();
+session_destroy();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Information</title>
+</head>
+<body>
+    <h2>Employee Information</h2>
+    <p>Employee Number: <?= $employeeDetails['eno'] ?></p>
+    <p>Employee Name: <?= $employeeDetails['ename'] ?></p>
+    <p>Address: <?= $employeeDetails['address'] ?></p>
+    <p>Basic: <?= $earningDetails['basic'] ?></p>
+    <p>DA: <?= $earningDetails['da'] ?></p>
+    <p>HRA: <?= $earningDetails['hra'] ?></p>
+    <p>Total Earnings: <?= $totalEarnings ?></p>
+</body>
+</html>
+
